@@ -1271,11 +1271,6 @@ node_info() ->
                ],
     kz_json:from_list(NodeInfo).
 
--spec app_status(atom()) -> [{kz_term:ne_binary(), kz_json:object()}].
-app_status(App) ->
-    WhappInfo = get_whapp_info(App),
-    [{kz_term:to_binary(App), whapp_info_to_json(WhappInfo)}].
-
 -spec amqp_status() -> [{kz_term:ne_binary(), kz_json:object()}].
 amqp_status() ->
     Connections = kz_amqp_connections:connections(),
