@@ -37,7 +37,6 @@
 -export([with_role/1, with_role/2]).
 -export([print_role/1]).
 -export([nodes/0]).
--export([kztm_oldest_node/0]).
 
 -export([init/1
         ,handle_call/3
@@ -1154,34 +1153,6 @@ notify_new(#kz_node{node=NodeName}=Node, Pids) ->
         ],
     'ok'.
 
--spec kztm_oldest_node() -> oldest_whapp_node().
-kztm_oldest_node() ->
-    MatchSpec = [{#kz_node{node='$1'
-                          ,node_info='$2'
-                          ,_ = '_'
-                          }
-                 ,[]
-                 ,[{{'$1','$2'}}]
-                 }],
-    determine_kztm_oldest_node(MatchSpec).
-
--spec determine_kztm_oldest_node(ets:match_spec()) -> oldest_whapp_node().
-determine_kztm_oldest_node(MatchSpec) ->
-    Results = ets:select(?MODULE, MatchSpec),
-    lists:foldl(fun determine_kztm_oldest_node_fold/2, 'undefined', Results).
-
--spec determine_kztm_oldest_node_fold({node(), kz_term:api_object()}, oldest_whapp_node()) -> oldest_whapp_node().
-determine_kztm_oldest_node_fold({_Node, 'undefined'}, Acc) ->
-    Acc;
-determine_kztm_oldest_node_fold({Node, Info}, Acc) ->
-    NodeTs = kz_json:get_integer_value([<<"kazoo_telemetry">>, <<"Startup">>], Info, 'undefined'),
-    case Acc of
-        'undefined' when NodeTs =:= 'undefined' -> Acc;
-        'undefined' -> {Node, NodeTs};
-        {_, Startup} when NodeTs < Startup -> {Node, NodeTs};
-        _ -> Acc
-    end.
-
 -spec whapp_oldest_node(kz_term:text()) -> kz_term:api_integer().
 whapp_oldest_node(Whapp) ->
     whapp_oldest_node(Whapp, 'false').
@@ -1267,7 +1238,7 @@ node_info() ->
            ],
     Info = kazoo_bindings:map(<<"kz_nodes.node.info">>, []),
     NodeInfo = [{<<"amqp">>, kz_json:from_list(AMQP)}
-                  | [{Key, Value} || {Key, Value} <- Info]
+                | [{Key, Value} || {Key, Value} <- Info]
                ],
     kz_json:from_list(NodeInfo).
 

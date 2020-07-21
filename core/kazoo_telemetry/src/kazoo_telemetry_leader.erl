@@ -110,8 +110,8 @@ start_link() ->
 init([]) ->
     _ = kz_util:set_startup(),
     _ = kazoo_bindings:bind(?NODE_INFO_BINDING
-                            ,'kazoo_telemetry_leader'
-                            ,'node_info'),
+                           ,'kazoo_telemetry_leader'
+                           ,'node_info'),
     lager:notice("starting kazoo_telemetry leader"),
     LeaderCheck = erlang:start_timer(?TM_LEADER_TICK, self(), 'leader_poll'),
     {'ok', #state{responders=?TM_RESPONDERS
