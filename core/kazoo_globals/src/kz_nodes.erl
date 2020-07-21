@@ -1262,10 +1262,14 @@ maybe_add_zone(#kz_node{zone=Zone, broker=B}, #state{zones=Zones}=State) ->
 
 -spec node_info() -> kz_json:object().
 node_info() ->
-    kz_json:from_list(pool_states()
-                      ++ amqp_status()
-                      ++ app_status('kazoo_telemetry')
-                     ).
+    AMQP = [{<<"connections">>, kz_json:from_list(amqp_status())}
+           ,{<<"pools">>, kz_json:from_list(pool_states())}
+           ],
+    Info = kazoo_bindings:map(<<"kz_nodes.node.info">>, []),
+    NodeInfo = [{<<"amqp">>, kz_json:from_list(AMQP)}
+                  | [{Key, Value} || {Key, Value} <- Info]
+               ],
+    kz_json:from_list(NodeInfo).
 
 -spec app_status(atom()) -> [{kz_term:ne_binary(), kz_json:object()}].
 app_status(App) ->
