@@ -53,7 +53,7 @@
 %%------------------------------------------------------------------------------
 -spec leader() -> node().
 leader() ->
-     case kztm_oldest_node() of
+    case kztm_oldest_node() of
         'undefined' -> node();
         {Node, _} -> Node
     end.
