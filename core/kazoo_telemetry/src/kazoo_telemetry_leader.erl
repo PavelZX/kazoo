@@ -40,7 +40,7 @@
                             {node(), kz_time:gregorian_seconds()}.
 
 -define(NODE_INFO_BINDING, <<"kz_nodes.node.info">>).
--define(APP, <<"kazoo_telemetry">>).
+-define(NODE_KEY, <<"telemetry">>).
 
 
 %%%=============================================================================
@@ -52,7 +52,11 @@
 %% @end
 %%------------------------------------------------------------------------------
 -spec leader() -> node().
-leader() -> kztm_oldest_node().
+leader() ->
+     case kztm_oldest_node() of
+        'undefined' -> node();
+        {Node, _} -> Node
+    end.
 
 -spec kztm_oldest_node() -> oldest_kztm_node().
 kztm_oldest_node() ->
@@ -74,7 +78,7 @@ determine_kztm_oldest_node(MatchSpec) ->
 determine_kztm_oldest_node_fold({_Node, 'undefined'}, Acc) ->
     Acc;
 determine_kztm_oldest_node_fold({Node, Info}, Acc) ->
-    NodeTs = kz_json:get_integer_value([<<"kazoo_telemetry">>, <<"Startup">>], Info, 'undefined'),
+    NodeTs = kz_json:get_integer_value([?NODE_KEY, <<"Startup">>], Info, 'undefined'),
     case Acc of
         'undefined' when NodeTs =:= 'undefined' -> Acc;
         'undefined' -> {Node, NodeTs};
@@ -84,7 +88,10 @@ determine_kztm_oldest_node_fold({Node, Info}, Acc) ->
 
 -spec node_info() -> {kz_term:ne_binary(), kz_json:object()}.
 node_info() ->
-    {?APP, kz_json:from_list([{<<"Startup">>, startup()}])}.
+    Info = [{<<"Startup">>, startup()}
+           ,{<<"leader">>, leader()}
+           ],
+    {?NODE_KEY, kz_json:from_list(Info)}.
 
 -spec startup() -> non_neg_integer().
 startup() ->
