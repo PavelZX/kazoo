@@ -614,7 +614,6 @@ print_each_node_info(KV) ->
     print_node_info(KV).
 
 -spec print_node_info({kz_term:ne_binary(), kz_term:ne_binary() | integer()}) -> 'ok'.
-print_node_info({<<"kazoo_telemetry">>, _}) -> 'ok';
 print_node_info({K, ?NE_BINARY = V}) ->
     io:format("~s: ~s~n", [K, V]);
 print_node_info({K, V}) when is_integer(V) ->
