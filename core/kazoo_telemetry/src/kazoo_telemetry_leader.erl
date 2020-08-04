@@ -158,12 +158,12 @@ handle_cast(_Msg, State) ->
 
 -spec responder_start_fold(kz_term:ne_binary()) -> 'ok'.
 responder_start_fold(App) ->
-  case (kz_term:to_atom(App)):start_link() of
-    {'error', _R} ->
-      lager:debug("issue starting telemetry responder: ~p", [_R]),
-      'ok';
-    _ -> 'ok'
-  end.
+    case (kz_term:to_atom(App)):start_link() of
+        {'error', _R} ->
+            lager:debug("issue starting telemetry responder: ~p", [_R]),
+            'ok';
+        _ -> 'ok'
+    end.
 
 %%------------------------------------------------------------------------------
 %% @doc Handling all non call/cast messages
