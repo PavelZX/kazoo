@@ -524,7 +524,7 @@ create_event(EventName, Props) ->
 create_event(EventName, ApplicationName, Props) ->
     props:filter_undefined(
       [{<<"Event-Name">>, EventName}
-       | specific_call_event_props(EventName, ApplicationName, Props)
+      | specific_call_event_props(EventName, ApplicationName, Props)
        ++ generic_call_event_props(Props)
        ++ specific_call_channel_vars_props(EventName, Props)
       ]).
@@ -605,7 +605,7 @@ generic_call_event_props(Props) ->
     ,{<<"Timestamp">>, NormalizedFSTimestamp}
     ,{<<"To-Tag">>, props:get_value(<<"variable_sip_to_tag">>, Props)}
     ,{<<"Transfer-History">>, get_transfer_history(Props)}
-     | callee_call_event_props(Props)
+    | callee_call_event_props(Props)
      ++ kz_api:default_headers(?APP_NAME, ?APP_VERSION)
     ].
 
@@ -705,7 +705,7 @@ specific_call_event_props(<<"CHANNEL_DESTROY">>, _, Props) ->
     ,{<<"Ringing-Seconds">>, get_ringing_seconds(Props)}
     ,{<<"User-Agent">>, props:get_value(<<"variable_sip_user_agent">>, Props)}
     ,{<<"Fax-Info">>, maybe_fax_specific(Props)}
-     | debug_channel_props(Props)
+    | debug_channel_props(Props)
     ];
 specific_call_event_props(<<"RECORD_START">>, _, Props) ->
     [{<<"Application-Name">>, <<"record">>}
@@ -787,7 +787,7 @@ conference_specific(Props) ->
                 [ConfName, ConfConfig] ->
                     [{<<"Conference-Name">>, ConfName}
                     ,{<<"Conference-Config">>, ConfConfig}
-                     | Default
+                    | Default
                     ];
                 _ -> Default
             end
@@ -1076,10 +1076,10 @@ usurp_other_publishers(#state{node=Node
     Usurp = [{<<"Call-ID">>, CallId}
             ,{<<"Media-Node">>, Node}
             ,{<<"Reference">>, Ref}
-             | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
+            | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
             ],
     PublisherFun = fun(P) -> kapi_call:publish_usurp_publisher(CallId, P) end,
-    kz_amqp_worker:cast(Usurp, PublisherFun),
+    _ = kz_amqp_worker:cast(Usurp, PublisherFun),
     ecallmgr_usurp_monitor:register('usurp_publisher', CallId, Ref).
 
 -spec get_is_loopback(kz_term:api_binary()) -> atom().

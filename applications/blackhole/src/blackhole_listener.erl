@@ -11,6 +11,8 @@
         ,add_binding/1, remove_binding/1
         ,add_bindings/1, remove_bindings/1
         ,flush/0
+
+        ,wait_until_consuming/1
         ]).
 
 -export([init/1
@@ -64,6 +66,10 @@ start_link() ->
                             ]
                            ,[]
                            ).
+
+-spec wait_until_consuming(timeout()) -> 'ok' | {'error', 'timeout'}.
+wait_until_consuming(Timeout) ->
+    gen_listener:wait_until_consuming(?SERVER, Timeout).
 
 -spec handle_amqp_event(kz_json:object(), kz_term:proplist(), gen_listener:basic_deliver() | kz_term:ne_binary()) -> 'ok'.
 handle_amqp_event(EventJObj, _Props, ?MODULE_REQ_ROUTING_KEY) ->
@@ -133,7 +139,7 @@ maybe_persist(BHModule, 'true', 'ok') ->
 persist_module(Module, Mods) ->
     case blackhole_config:set_default_autoload_modules(
            [kz_term:to_binary(Module)
-            | lists:delete(kz_term:to_binary(Module), Mods)
+           | lists:delete(kz_term:to_binary(Module), Mods)
            ]
           )
     of
@@ -148,7 +154,7 @@ send_module_resp(EventJObj, Started, Persisted) ->
            ,{<<"Started">>, Started =:= 'ok'}
            ,{<<"Error">>, maybe_start_error(Started)}
            ,{<<"Msg-ID">>, kz_api:msg_id(EventJObj)}
-            | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
+           | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
            ],
     ServerId = kz_api:server_id(EventJObj),
     kapi_websockets:publish_module_resp(ServerId, Resp).
@@ -164,7 +170,7 @@ send_error_module_resp(EventJObj, Error) ->
            ,{<<"Started">>, 'false'}
            ,{<<"Error">>, Error}
            ,{<<"Msg-ID">>, kz_api:msg_id(EventJObj)}
-            | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
+           | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
            ],
     ServerId = kz_api:server_id(EventJObj),
     kapi_websockets:publish_module_resp(ServerId, Resp).
@@ -200,7 +206,8 @@ remove_bindings(Bindings) ->
 %%------------------------------------------------------------------------------
 -spec init(list()) -> {'ok', state()}.
 init([]) ->
-    {'ok', #state{bindings=ets:new(bindings, [])}}.
+    kz_util:put_callid(?MODULE),
+    {'ok', #state{bindings=ets:new(?MODULE, [])}}.
 
 %%------------------------------------------------------------------------------
 %% @doc Handling call messages.

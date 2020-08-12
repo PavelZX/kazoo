@@ -84,6 +84,8 @@ handle_call(_Req, _From, State) ->
 %% @end
 %%------------------------------------------------------------------------------
 -spec handle_cast(any(), state()) -> kz_types:handle_cast_ret_state(state()).
+handle_cast({'gen_listener', {'federators_consuming', _IsConsuming}}, State) ->
+    {'noreply', State};
 handle_cast(_Req, State) ->
     lager:debug("unhandled cast: ~p", [_Req]),
     {'noreply', State}.
@@ -513,7 +515,7 @@ add_participant(JObj, CallId, ControlQueue, ChannelProps) ->
                                  ,{<<"Profile-Name">>, kz_json:get_ne_binary_value(<<"Profile-Name">>, JObj)}
                                  ,{<<"Caller-ID-Name">>, kz_json:get_ne_binary_value(<<"Caller-ID-Name">>, JObj)}
                                  ,{<<"Caller-ID-Number">>, kz_json:get_ne_binary_value(<<"Caller-ID-Number">>, JObj)}
-                                  | kz_api:default_headers(<<"conference">>, <<"add_participant">>, ?APP_NAME, ?APP_VERSION)
+                                 | kz_api:default_headers(<<"conference">>, <<"add_participant">>, ?APP_NAME, ?APP_VERSION)
                                  ]
                                 ,ecallmgr_call_events:to_json(ChannelProps)
                                 ),
@@ -530,7 +532,7 @@ add_participant(JObj, CallId, ControlQueue, ChannelProps) ->
 publish_resp(JObj, BaseResps) ->
     Resp = [{<<"Msg-ID">>, kz_api:msg_id(JObj)}
            ,{<<"Endpoint-Responses">>, BaseResps}
-            | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
+           | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
            ],
     kz_amqp_worker:cast(Resp
                        ,fun(P) -> kapi_conference:publish_dial_resp(kz_api:server_id(JObj), P) end
@@ -601,7 +603,7 @@ query_cluster_for_call(CallId) ->
     Req = [{<<"Call-ID">>, CallId}
           ,{<<"Fields">>, <<"all">>}
           ,{<<"Active-Only">>, 'true'}
-           | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
+          | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
           ],
 
     kz_amqp_worker:call_collect(Req

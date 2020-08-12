@@ -341,7 +341,7 @@ check_node_versions([_Node]) -> 'ok';
 check_node_versions([#kz_node{version=Version
                              ,node=Node
                              }
-                     | Nodes
+                    | Nodes
                     ]) ->
     [Name, _Host] = binary:split(kz_term:to_binary(Node), <<"@">>),
     check_node_versions(Nodes, {Name, Node, Version}).
@@ -351,7 +351,7 @@ check_node_versions([], _) -> 'ok';
 check_node_versions([#kz_node{version=Vsn
                              ,node=N
                              }
-                     | Nodes
+                    | Nodes
                     ]
                    ,{Name, Node, Version}=Current
                    ) ->
@@ -1025,7 +1025,7 @@ advertise_payload(#kz_node{expires=Expires
       ,{<<"Zone">>, kz_term:to_binary(Zone)}
       ,{<<"Globals">>, kz_json:from_list(Globals)}
       ,{<<"Node-Info">>, node_info()}
-       | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
+      | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
       ]).
 
 -spec media_servers_to_json(kz_types:media_servers()) -> kz_json:object().
@@ -1245,7 +1245,13 @@ amqp_status() ->
 amqp_status_connection(Connection) ->
     Count = kz_amqp_assignments:channel_count(Connection),
     Broker = kz_amqp_connection:broker(Connection),
-    {Broker, kz_json:from_list([{<<"channel_count">>, Count}])}.
+    BrokerZone = kz_amqp_connection:zone(Connection),
+
+    {Broker
+    ,kz_json:from_list([{<<"channel_count">>, Count}
+                       ,{<<"zone">>, kz_term:to_binary(BrokerZone)}
+                       ])
+    }.
 
 -spec pool_states() -> kz_term:proplist().
 pool_states() ->

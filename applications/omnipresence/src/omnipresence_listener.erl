@@ -117,6 +117,8 @@ handle_cast({'gen_listener',{'created_queue',Queue}}, State) ->
 handle_cast({'gen_listener',{'is_consuming',IsConsuming}}, State) ->
     gen_listener:cast(self(), 'send_sync'),
     {'noreply', State#state{consuming=IsConsuming}};
+handle_cast({'gen_listener', {'federators_consuming', _IsConsuming}}, State) ->
+    {'noreply', State};
 handle_cast('send_sync', #state{subs_pid=Pid, queue=Queue, consuming=IsConsuming} = State)
   when Pid =:= 'undefined'
        orelse Queue =:= 'undefined'
@@ -192,6 +194,6 @@ maybe_sync_subscriptions('false', _) -> 'ok';
 maybe_sync_subscriptions('true', Queue) ->
     Payload = kz_json:from_list(
                 [{<<"Action">>, <<"Request">>}
-                 | kz_api:default_headers(Queue, ?APP_NAME, ?APP_VERSION)
+                | kz_api:default_headers(Queue, ?APP_NAME, ?APP_VERSION)
                 ]),
     kapi_presence:publish_sync(Payload).

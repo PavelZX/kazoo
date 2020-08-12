@@ -10,7 +10,9 @@
 
 -behaviour(gen_listener).
 
--export([start_link/0]).
+-export([start_link/0
+        ,wait_until_consuming/1
+        ]).
 -export([init/1
         ,handle_call/3
         ,handle_cast/2
@@ -68,6 +70,10 @@ start_link() ->
                             ]
                            ,[]
                            ).
+
+-spec wait_until_consuming(timeout()) -> 'ok' | {'error', 'timeout'}.
+wait_until_consuming(Timeout) ->
+    gen_listener:wait_until_consuming(?SERVER, Timeout).
 
 %%%=============================================================================
 %%% gen_server callbacks

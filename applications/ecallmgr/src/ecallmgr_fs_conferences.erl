@@ -208,7 +208,7 @@ handle_search_conference(JObj, _Props, Name) ->
                     ,switch_url=SwitchURL
                     ,switch_external_ip=ExternalIP
                     }
-         | _Conferences
+        | _Conferences
         ] ->
             lager:debug("sending affirmative search response for conference ~s", [Name]),
             Participants = participants(Name),
@@ -224,7 +224,7 @@ handle_search_conference(JObj, _Props, Name) ->
                    ,{<<"Participant-Count">>, length(Participants)}
                    ,{<<"Participants">>, participants_to_json(Participants)}
                    ,{<<"Zone">>, kz_config:zone('binary')}
-                    | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
+                   | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
                    ],
             kapi_conference:publish_search_resp(kz_api:server_id(JObj), Resp);
         [] ->
@@ -233,7 +233,7 @@ handle_search_conference(JObj, _Props, Name) ->
                     ,{<<"Error-Message">>, <<"Conference ", Name/binary, " not found">>}
                     ,{<<"Request">>, JObj}
                     ,{<<"Conference-ID">>, Name}
-                     | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
+                    | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
                     ],
             kapi_conference:publish_error(kz_api:server_id(JObj), Error)
     end.
@@ -248,7 +248,7 @@ handle_search_account(JObj, _Props) ->
             Resp = [{<<"Msg-ID">>, kz_api:msg_id(JObj)}
                    ,{<<"Account-ID">>, AccountId}
                    ,{<<"Conferences">>, kz_json:new()}
-                    | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
+                   | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
                    ],
             kapi_conference:publish_search_resp(kz_api:server_id(JObj), Resp);
         Conferences ->
@@ -257,7 +257,7 @@ handle_search_account(JObj, _Props) ->
             Resp = [{<<"Msg-ID">>, kz_api:msg_id(JObj)}
                    ,{<<"Account-ID">>, AccountId}
                    ,{<<"Conferences">>, kz_json:from_list(Payload)}
-                    | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
+                   | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
                    ],
             kapi_conference:publish_search_resp(kz_api:server_id(JObj), Resp)
     end.
@@ -386,6 +386,8 @@ handle_cast({'flush_node', Node}, State) ->
 handle_cast({'gen_listener',{'created_queue',_QueueName}}, State) ->
     {'noreply', State};
 handle_cast({'gen_listener',{'is_consuming',_IsConsuming}}, State) ->
+    {'noreply', State};
+handle_cast({'gen_listener', {'federators_consuming', _IsConsuming}}, State) ->
     {'noreply', State};
 handle_cast(_Req, State) ->
     lager:debug("unhandled cast: ~p", [_Req]),
@@ -609,7 +611,7 @@ xml_list_to_records([], _, Recs) -> Recs;
 xml_list_to_records([#xmlElement{name='conference'
                                 ,content=XmlMembers
                                 }=Xml
-                     | XmlElements
+                    | XmlElements
                     ], Node, Recs) ->
     Conference = xml_to_conference(Xml, Node),
     Participants = xml_members_to_participants(XmlMembers, Conference),
@@ -639,7 +641,7 @@ xml_to_conference(#xmlElement{name='conference'
           conference().
 xml_attrs_to_conference([], Conference) -> Conference;
 xml_attrs_to_conference([#xmlAttribute{name=Name, value=Value}
-                         |Attrs
+                        |Attrs
                         ], Conference) ->
     C = xml_attr_to_conference(Conference, Name, Value),
     xml_attrs_to_conference(Attrs, C).
@@ -677,7 +679,7 @@ xml_members_to_participants([], _) -> [];
 xml_members_to_participants([#xmlElement{name='members'
                                         ,content=XmlElements
                                         }
-                             |_], #conference{name=Name, uuid=UUID, node=Node}) ->
+                            |_], #conference{name=Name, uuid=UUID, node=Node}) ->
     [xml_member_to_participant(Xml, #participant{node=Node
                                                 ,conference_name=Name
                                                 ,conference_uuid=UUID
@@ -693,7 +695,7 @@ xml_member_to_participant([], Participant) -> Participant;
 xml_member_to_participant([#xmlElement{name='uuid'
                                       ,content=UUID
                                       }
-                           |XmlElements
+                          |XmlElements
                           ], Participant) ->
     CallId = kz_util:uri_decode(xml_text_to_binary(UUID)),
     lager:debug("uuid ~s callid ~s", [xml_text_to_binary(UUID), CallId]),
@@ -724,7 +726,7 @@ get_conference_dictionary(Conferences) ->
 -spec get_conference_dictionary(conferences(), dict:dict()) -> dict:dict().
 get_conference_dictionary([], Dictionary) -> Dictionary;
 get_conference_dictionary([#conference{uuid=UUID}=Conference
-                           | Conferences
+                          | Conferences
                           ], Dictionary) ->
     get_conference_dictionary(Conferences, dict:store(UUID, Conference, Dictionary));
 get_conference_dictionary([_|Conferences], Dictionary) ->
@@ -737,7 +739,7 @@ get_participant_dictionary(Participants) ->
 -spec get_participant_dictionary(participants(), dict:dict()) -> dict:dict().
 get_participant_dictionary([], Dictionary) -> Dictionary;
 get_participant_dictionary([#participant{uuid=UUID}=Participant
-                            | Participants
+                           | Participants
                            ], Dictionary) ->
     get_participant_dictionary(Participants, dict:store(UUID, Participant, Dictionary));
 get_participant_dictionary([_|Participants], Dictionary) ->
@@ -837,7 +839,7 @@ print_participant_details([]) -> io:format("~n");
 print_participant_details([#participant{uuid=UUID
                                        ,conference_channel_vars=Props
                                        }
-                           | Participants
+                          | Participants
                           ]) ->
     io:format("~n    [~b] ~-52s:", [props:get_integer_value(<<"Member-ID">>, Props, 0), UUID]),
     print_participant_flags(Props),

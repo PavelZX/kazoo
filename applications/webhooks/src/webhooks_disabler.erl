@@ -166,7 +166,6 @@ disable_hook(AccountId, HookId) ->
     Update = kzd_webhook:disable_updates(<<"too many failed attempts">>),
     Updates = [{'update', Update}
               ,{'ensure_saved', 'true'}
-              ,{'should_create', 'false'}
               ],
     case kz_datamgr:update_doc(?KZ_WEBHOOKS_DB, HookId, Updates) of
         {'ok', _Updated} ->
@@ -193,6 +192,6 @@ filter_cache(AccountId, HookId) ->
 send_notification(AccountId, HookId) ->
     API = [{<<"Account-ID">>, AccountId}
           ,{<<"Hook-ID">>, HookId}
-           | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
+          | kz_api:default_headers(?APP_NAME, ?APP_VERSION)
           ],
     kapps_notify_publisher:cast(API, fun kapi_notifications:publish_webhook_disabled/1).

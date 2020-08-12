@@ -9,7 +9,9 @@
 -module(kz_hooks_listener).
 -behaviour(gen_listener).
 
--export([start_link/0]).
+-export([start_link/0
+        ,wait_until_consuming/1
+        ]).
 -export([init/1
         ,handle_call/3
         ,handle_cast/2
@@ -67,6 +69,10 @@ start_link() ->
                            ,[]
                            ).
 
+-spec wait_until_consuming(timeout()) -> 'ok' | {'error', 'timeout'}.
+wait_until_consuming(Timeout) ->
+    gen_listener:wait_until_consuming(?SERVER, Timeout).
+
 %%%=============================================================================
 %%% gen_server callbacks
 %%%=============================================================================
@@ -97,7 +103,9 @@ handle_call(_Request, _From, State) ->
 -spec handle_cast(any(), state()) -> kz_types:handle_cast_ret_state(state()).
 handle_cast({'maybe_add_binding', 'all'}, #state{call_events=Events}=State) ->
     case [E || E <- ?ALL_EVENTS, not lists:member(E, Events)] of
-        [] -> {'noreply', State};
+        [] ->
+            lager:debug("not adding bindings for all events"),
+            {'noreply', State};
         Es ->
             lager:debug("adding bindings for ~p", [Es]),
             gen_listener:add_binding(self(), ?CALL_BINDING(Es)),
@@ -105,9 +113,11 @@ handle_cast({'maybe_add_binding', 'all'}, #state{call_events=Events}=State) ->
     end;
 handle_cast({'maybe_add_binding', Event}, #state{call_events=Events}=State) ->
     case lists:member(Event, Events) of
-        'true' -> {'noreply', State};
+        'true' ->
+            lager:debug("not adding bindings for event ~p", [Event]),
+            {'noreply', State};
         'false' ->
-            lager:debug("adding bindings for ~s", [Event]),
+            lager:debug("adding bindings for ~p", [Event]),
             gen_listener:add_binding(self(), ?CALL_BINDING([Event])),
             {'noreply', State#state{call_events=[Event | Events]}}
     end;
@@ -130,6 +140,8 @@ handle_cast({'maybe_remove_binding', Event}, #state{call_events=Events}=State) -
 handle_cast({'gen_listener', {'created_queue', _Q}}, State) ->
     {'noreply', State};
 handle_cast({'gen_listener', {'is_consuming', _IsConsuming}}, State) ->
+    {'noreply', State};
+handle_cast({'gen_listener', {'federators_consuming', _IsConsuming}}, State) ->
     {'noreply', State};
 handle_cast(_Msg, State) ->
     lager:debug("unhandled cast: ~p", [_Msg]),

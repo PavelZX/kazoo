@@ -992,7 +992,7 @@ update_not_found(DbName, Id, Options) ->
 
     JObj = kz_json:set_values(CreateProps, kz_json:new()),
     Updated = kz_json:set_values([{kz_doc:path_id(), Id}
-                                  | props:get_value('update', Options)
+                                 | props:get_value('update', Options)
                                  ]
                                  ++ props:get_value('extra_update', Options, [])
                                 ,JObj
@@ -1183,7 +1183,7 @@ attachment_url(DbName, DocId, AttachmentId, Options) when ?VALID_DBNAME(DbName) 
     case kzs_doc:open_doc(Plan, DbName, DocId, props:delete('plan_override', Options)) of
         {'ok', JObj} ->
             NewOptions = [{'rev', kz_doc:revision(JObj)}
-                          | maybe_add_doc_type(kz_doc:type(JObj), Options)
+                         | maybe_add_doc_type(kz_doc:type(JObj), Options)
                          ],
             Handler = kz_doc:attachment_property(JObj, AttachmentId, <<"handler">>),
             kzs_attachments:attachment_url(Plan, DbName, DocId, AttachmentId, Handler, NewOptions);
