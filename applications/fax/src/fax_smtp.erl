@@ -760,8 +760,8 @@ process_message(<<"multipart">>, Multipart, Headers, _Parameters, Body, #state{e
         A ->
             lager:debug("missed processing ~p", [A]),
             {'ok', NewState#state{errors=[<<"invalid body">> | Errors]
-                              ,has_smtp_errors='true'
-                              }}
+                                 ,has_smtp_errors='true'
+                                 }}
     end;
 process_message(_Type, _SubType, _Headers, _Parameters, _Body, State) ->
     lager:debug("skipping ~s/~s",[_Type, _SubType]),
