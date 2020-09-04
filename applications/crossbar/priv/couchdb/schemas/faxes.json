@@ -58,6 +58,10 @@
             "description": "The sender number for the fax",
             "type": "string"
         },
+        "subject": {
+            "description": "The subject header in an email to fax message",
+            "type": "string"
+        },
         "notifications": {
             "description": "Status notifications",
             "properties": {
