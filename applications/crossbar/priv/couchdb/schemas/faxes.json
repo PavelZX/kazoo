@@ -58,10 +58,6 @@
             "description": "The sender number for the fax",
             "type": "string"
         },
-        "subject": {
-            "description": "The subject header in an email to fax message",
-            "type": "string"
-        },
         "notifications": {
             "description": "Status notifications",
             "properties": {
@@ -108,6 +104,10 @@
             "maximum": 4,
             "minimum": 0,
             "type": "integer"
+        },
+        "subject": {
+            "description": "The subject header in an email to fax message",
+            "type": "string"
         },
         "to_name": {
             "description": "The recipient name for the fax",
