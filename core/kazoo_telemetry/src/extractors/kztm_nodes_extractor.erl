@@ -128,7 +128,7 @@ media_servers_foldl({Server, Meta}, Acc) ->
 -spec maybe_extract_kamailio_metadata(kz_types:kz_node(), kz_json:objects()) -> kz_json:objects().
 maybe_extract_kamailio_metadata(#kz_node{roles=[]}, Acc) -> Acc;
 maybe_extract_kamailio_metadata(#kz_node{roles=Roles}, Acc) ->
-     case props:get_value(<<"Registrar">>, Roles) of
+    case props:get_value(<<"Registrar">>, Roles) of
         'undefined' -> Acc;
         Registrar ->
             Registrations = kz_json:get_integer_value(<<"Registrations">>, Registrar, 0),
