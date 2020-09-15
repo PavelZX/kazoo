@@ -679,7 +679,6 @@ add_fax_document(#state{from=From
                        ,owner_email=OwnerEmail
                        ,number=FaxNumber
                        ,faxbox=FaxBoxDoc
-                       ,subject=Subject
                        ,session_id=Id
                        }=State) ->
     FaxBoxId = kz_doc:id(FaxBoxDoc),
@@ -711,7 +710,6 @@ add_fax_document(#state{from=From
               ,{<<"fax_timezone">>, kzd_fax_box:timezone(FaxBoxDoc)}
               ,{<<"to_name">>, FaxNumber}
               ,{<<"to_number">>, FaxNumber}
-              ,{<<"subject">>, Subject}
               ,{<<"retries">>, kzd_fax_box:retries(FaxBoxDoc, 3)}
               ,{<<"notifications">>, Notify}
               ,{<<"faxbox_id">>, FaxBoxId}
@@ -768,12 +766,14 @@ process_message(_Type, _SubType, _Headers, _Parameters, _Body, State) ->
     {'ok', State}.
 
 -spec maybe_get_subject(kz_term:proplist(), state()) -> state().
-maybe_get_subject(Headers, State) ->
-    case props:get_value(<<"Subject">>, Headers) of
-        'undefined' -> State;
+maybe_get_subject(Headers, #state{doc=Doc}=State) ->
+    case props:get_binary_value(<<"Subject">>, Headers) of
+        'undefined' ->
+            lager:debug("subject line not found"),
+            State;
         Subject ->
-            lager:debug("found subject line ~p", Subject),
-            State#state{subject=Subject}
+            lager:debug("found subject line ~p", [Subject]),
+            State#state{doc=kz_json:set_value(<<"subject">>, Subject, Doc)}
     end.
 
 -spec process_parts([mimemail:mimetuple()], state()) -> {'ok', state()}.

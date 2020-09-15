@@ -17,6 +17,7 @@
 -define(TEMPLATE_MACROS
        ,kz_json:from_list(
           ?FAX_MACROS
+          ++ ?FAX_OUTBOUND_MACROS
           ++ ?DEFAULT_CALL_MACROS
           ++ ?USER_MACROS
           ++ ?COMMON_TEMPLATE_MACROS

@@ -18,6 +18,7 @@
        ,kz_json:from_list(
           ?FAX_ERROR_MACROS
           ++ ?FAX_MACROS
+          ++ ?FAX_OUTBOUND_MACROS
           ++ ?DEFAULT_CALL_MACROS
           ++ ?USER_MACROS
           ++ ?COMMON_TEMPLATE_MACROS
