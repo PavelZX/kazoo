@@ -40,7 +40,6 @@
 -record(state, {options = [] :: kz_term:proplist()
                ,from :: kz_term:api_ne_binary()
                ,to :: kz_term:api_ne_binary()
-               ,subject :: kz_term:api_binary()
                ,doc :: kz_term:api_object()
                ,filename :: file:filename_all() | 'undefined'
                ,content_type :: kz_term:api_ne_binary()
