@@ -42,13 +42,13 @@ send_email(From, To, Email) ->
 
     lager:debug("sending email to ~s from ~s with options ~p", [To, From, Options]),
 
-    gen_smtp_client:send({From, [To], Encoded}
-                        ,Options
-                        ,fun(X) ->
-                                 kz_util:put_callid(ReqId),
-                                 lager:debug("email relay responded: ~p, send to ~p", [X, Self]),
-                                 Self ! {'relay_response', X}
-                         end),
+    _ = gen_smtp_client:send({From, [To], Encoded}
+                            ,Options
+                            ,fun(X) ->
+                                     kz_util:put_callid(ReqId),
+                                     lager:debug("email relay responded: ~p, send to ~p", [X, Self]),
+                                     Self ! {'relay_response', X}
+                             end),
     %% The callback will receive either `{ok, Receipt}' where Receipt is the SMTP server's receipt
     %% identifier,  `{error, Type, Message}' or `{exit, ExitReason}', as the single argument.
     receive
