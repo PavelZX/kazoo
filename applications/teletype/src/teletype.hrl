@@ -209,7 +209,7 @@
 
 -define(FAX_OUTBOUND_MACROS
        ,[?MACRO_VALUE(<<"fax.subject">>, <<"subject">>, <<"Fax Subject">>, <<"Fax Subject">>)
-       ]).
+        ]).
 
 -define(FAX_ERROR_MACROS
        ,[?MACRO_VALUE(<<"fax.info">>, <<"fax_info">>, <<"Fax Info">>, <<"Fax Info">>)
