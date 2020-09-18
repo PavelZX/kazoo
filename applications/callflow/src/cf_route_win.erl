@@ -105,10 +105,10 @@ maybe_normalize_number(EndPointJObj, Call) ->
         andalso kapps_call:kvs_fetch('cf_capture_group', Call) =:= 'undefined'
     of
         'true' ->
-            lager:debug("no dial plan or capture group, using origin dialed number '~s'", [Request]),
+            lager:debug("no dial plan or capture group, using original dialed number '~s'", [Request]),
             Request;
         'false' ->
-            lager:debug("normalizing number number '~s'", [Request]),
+            lager:debug("normalizing number '~s'", [Request]),
             knm_converters:normalize(Request, AccountId, DialPlan)
     end.
 
